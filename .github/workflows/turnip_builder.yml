@@ -40,7 +40,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         body: ${{ steps.versions1.outputs.description }} 
-        tag_name: ${{ steps.versions2.outputs.tag }}
-        name: ${{ steps.versions3.outputs.name }}
+        tag_name: ${{ steps.versions3.outputs.tag }}
+        name: ${{ steps.versions2.outputs.name }}
         files: |
            turnip_workdir/turnip.zip
