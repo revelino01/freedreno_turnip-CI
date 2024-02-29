@@ -61,7 +61,7 @@ prepare_workdir(){
 	unzip "$ndkver"-linux.zip  &> /dev/null
 
 	echo "Cloning mesa ..." $'\n'
-	git clone "$mesasrc"  &> /dev/null
+	git clone --depth=1 "$mesasrc"  &> /dev/null
 
 	cd mesa
 	commit_short=$(git rev-parse --short HEAD)
