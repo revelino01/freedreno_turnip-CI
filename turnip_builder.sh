@@ -8,7 +8,10 @@ workdir="$(pwd)/turnip_workdir"
 magiskdir="$workdir/turnip_module"
 ndkver="android-ndk-r26c"
 sdkver="31"
-mesasrc="https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.zip"
+mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
+commit=""
+commit_short=""
+mesa_version=""
 clear
 
 # there are 4 functions here, simply comment to disable.
@@ -57,12 +60,13 @@ prepare_workdir(){
 	echo "Exracting android-ndk to a folder ..." $'\n'
 	unzip "$ndkver"-linux.zip  &> /dev/null
 
-	echo "Downloading mesa source (~30 MB) ..." $'\n'
-	curl "$mesasrc" --output mesa-main.zip &> /dev/null
-	###
-	echo "Exracting mesa source to a folder ..." $'\n'
-	unzip mesa-main.zip &> /dev/null
-	cd mesa-main
+	echo "Cloning mesa ..." $'\n'
+	git clone "$mesasrc"  &> /dev/null
+
+	cd mesa
+	commit_short=$(git rev-parse --short HEAD)
+	commit=$(git rev-parse HEAD)
+	mesa_version=$(cat VERSION | xargs)
 }
 
 
@@ -98,60 +102,42 @@ EOF
 
 port_lib_for_magisk(){
 	echo "Using patchelf to match soname ..."  $'\n'
-	cp "$workdir"/mesa-main/build-android-aarch64/src/freedreno/vulkan/libvulkan_freedreno.so "$workdir"
+	cp "$workdir"/mesa/build-android-aarch64/src/freedreno/vulkan/libvulkan_freedreno.so "$workdir"
 	cd "$workdir"
 	patchelf --set-soname vulkan.adreno.so libvulkan_freedreno.so
-	mv libvulkan_freedreno.so vulkan.adreno.so
+	mv libvulkan_freedreno.so vulkan.ad07XX.so
 
-	if ! [ -a vulkan.adreno.so ]; then
+	if ! [ -a vulkan.ad07XX.so ]; then
 		echo -e "$red Build failed! $nocolor" && exit 1
 	fi
 
-	echo "Prepare magisk module structure ..." $'\n'
-	p1="system/vendor/lib64/hw"
 	mkdir -p "$magiskdir" && cd "$_"
-	mkdir -p "$p1"
 
-	meta="META-INF/com/google/android"
-	mkdir -p "$meta"
-
-	cat <<EOF >"$meta/update-binary"
-#################
-# Initialization
-#################
-umask 022
-ui_print() { echo "\$1"; }
-OUTFD=\$2
-ZIPFILE=\$3
-. /data/adb/magisk/util_functions.sh
-install_module
-exit 0
-EOF
-
-	cat <<EOF >"$meta/updater-script"
-#MAGISK
-EOF
-
-	cat <<EOF >"module.prop"
-id=turnip
-name=turnip
-version=v1.0
-versionCode=1
-author=MrMiy4mo
-description=Turnip is an open-source vulkan driver for devices with adreno GPUs.
-EOF
-
-	cat <<EOF >"customize.sh"
-set_perm_recursive \$MODPATH/system 0 0 755 u:object_r:system_file:s0
-set_perm_recursive \$MODPATH/system/vendor 0 2000 755 u:object_r:vendor_file:s0
-set_perm \$MODPATH/$p1/vulkan.adreno.so 0 0 0644 u:object_r:same_process_hal_file:s0
+	cat <<EOF >"meta.json"
+{
+  "schemaVersion": 1,
+  "name": "Turnip Driver - $commit_short",
+  "description": "$mesa_version - $commit",
+  "author": "mesa",
+  "packageVersion": "1",
+  "vendor": "Mesa",
+  "driverVersion": "Vulkan 1.3.278",
+  "minApi": 27,
+  "libraryName": "vulkan.ad07XX.so"
+}
 EOF
 
 	echo "Copy necessary files from work directory ..." $'\n'
-	cp "$workdir"/vulkan.adreno.so "$magiskdir"/"$p1"
+	cp "$workdir"/vulkan.ad07XX.so "$magiskdir"
 
 	echo "Packing files in to magisk module ..." $'\n'
-	zip -r "$workdir"/turnip.zip ./* &> /dev/null
+	zip -r "$workdir"/turnip.zip ./*
+
+	cd "$workdir"
+	echo "$commit" > description
+	echo "Turnip Driver - $mesa_version - $commit_short" > release
+	echo "$mesa_version"_"$commit_short" > tag
+
 	if ! [ -a "$workdir"/turnip.zip ];
 		then echo -e "$red-Packing failed!$nocolor" && exit 1
 		else echo -e "$green-All done, you can take your module from here;$nocolor" && echo "$workdir"/turnip.zip

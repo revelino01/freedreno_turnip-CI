@@ -28,12 +28,20 @@ jobs:
           turnip_workdir/ninja_log
           turnip_workdir/mesa-main/build-android-aarch64/meson-logs/meson-log.txt
           turnip_workdir/turnip.zip
+          
+    - id: versions
+      run: |
+        {
+          "description=$(cat turnip_workdir/description)"
+          "name=$(cat turnip_workdir/release)"
+          "tag=$(cat turnip_workdir/tag)"
+        } >> $GITHUB_OUTPUT
       
     - name: Release "turnip"
       uses: softprops/action-gh-release@v1
       with:
-        body: Turnip magisk module
-        tag_name: github_run
-        name: Weekly Action Release
+        body: ${{ steps.versions.outputs.description }} 
+        tag_name: ${{ steps.versions.outputs.tag }}
+        name: ${{ steps.versions.outputs.name }}
         files: |
            turnip_workdir/turnip.zip
