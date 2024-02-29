@@ -40,8 +40,8 @@ jobs:
     - name: Release "turnip"
       uses: softprops/action-gh-release@v1
       with:
-        body: ${{ steps.versions.outputs.description }} 
-        tag_name: ${{ steps.versions.outputs.tag }}
-        name: ${{ steps.versions.outputs.name }}
+        body: Turnip magisk module
+        tag_name: github_run
+        name: Weekly Action Release
         files: |
            turnip_workdir/turnip.zip
