@@ -152,7 +152,7 @@ EOF
 	echo "Turnip Driver - $mesa_version - $commit_short" > release
 	echo "$mesa_version"_"$commit_short" > tag
 
-	if ! [ -a "$workdir"/turnip_$mesa_version"_"$commit_short".zip ];
+	if ! [ -a "$workdir"/turnip_"$mesa_version"_"$commit_short".zip ];
 		then echo -e "$red-Packing failed!$nocolor" && exit 1
 		else echo -e "$green-All done, you can take your zip from here;$nocolor" && echo "$workdir"/turnip.zip
 	fi
