@@ -43,4 +43,4 @@ jobs:
         tag_name: ${{ steps.versions3.outputs.tag }}
         name: ${{ steps.versions2.outputs.name }}
         files: |
-           turnip_workdir/turnip.zip
+           turnip_workdir/turnip_${{ steps.versions3.outputs.tag }}.zip

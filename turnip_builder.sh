@@ -12,6 +12,7 @@ mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 commit=""
 commit_short=""
 mesa_version=""
+vulkan_version=""
 clear
 
 # there are 4 functions here, simply comment to disable.
@@ -54,19 +55,32 @@ prepare_workdir(){
 	echo "Creating and entering to work directory ..." $'\n'
 	mkdir -p "$workdir" && cd "$_"
 
-	echo "Downloading android-ndk from google server (~640 MB) ..." $'\n'
-	curl https://dl.google.com/android/repository/"$ndkver"-linux.zip --output "$ndkver"-linux.zip &> /dev/null
-	###
-	echo "Exracting android-ndk to a folder ..." $'\n'
-	unzip "$ndkver"-linux.zip  &> /dev/null
+	if [ ! -n "$(ls -d android-ndk*)" ]; then
+		echo "Downloading android-ndk from google server (~640 MB) ..." $'\n'
+		curl https://dl.google.com/android/repository/"$ndkver"-linux.zip --output "$ndkver"-linux.zip &> /dev/null
+		###
+		echo "Exracting android-ndk to a folder ..." $'\n'
+		unzip "$ndkver"-linux.zip  &> /dev/null
+	fi
 
+	if [ -d mesa ]; then
+		echo "Removing old mesa ..." $'\n'
+		rm -rf mesa
+	fi
+	
 	echo "Cloning mesa ..." $'\n'
 	git clone --depth=1 "$mesasrc"  &> /dev/null
+
 
 	cd mesa
 	commit_short=$(git rev-parse --short HEAD)
 	commit=$(git rev-parse HEAD)
 	mesa_version=$(cat VERSION | xargs)
+	version=$(awk -F'COMPLETE VK_MAKE_API_VERSION(|)' '{print $2}' <<< $(cat include/vulkan/vulkan_core.h) | xargs)
+	major=$(echo $version | cut -d "," -f 2 | xargs)
+	minor=$(echo $version | cut -d "," -f 3 | xargs)
+	patch=$(awk -F'VK_HEADER_VERSION |\n#define' '{print $2}' <<< $(cat include/vulkan/vulkan_core.h) | xargs)
+	vulkan_version="$major.$minor.$patch"
 }
 
 
@@ -121,7 +135,7 @@ port_lib_for_magisk(){
   "author": "mesa",
   "packageVersion": "1",
   "vendor": "Mesa",
-  "driverVersion": "Vulkan 1.3.278",
+  "driverVersion": "Vulkan $vulkan_version",
   "minApi": 27,
   "libraryName": "vulkan.ad07XX.so"
 }
@@ -130,17 +144,17 @@ EOF
 	echo "Copy necessary files from work directory ..." $'\n'
 	cp "$workdir"/vulkan.ad07XX.so "$magiskdir"
 
-	echo "Packing files in to magisk module ..." $'\n'
-	zip -r "$workdir"/turnip.zip ./*
+	echo "Packing files in to adrenotool package ..." $'\n'
+	zip -r "$workdir"/turnip_$mesa_version"_"$commit_short".zip ./*
 
 	cd "$workdir"
-	echo "$commit" > description
+	echo "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit" > description
 	echo "Turnip Driver - $mesa_version - $commit_short" > release
 	echo "$mesa_version"_"$commit_short" > tag
 
-	if ! [ -a "$workdir"/turnip.zip ];
+	if ! [ -a "$workdir"/turnip_$mesa_version"_"$commit_short".zip ];
 		then echo -e "$red-Packing failed!$nocolor" && exit 1
-		else echo -e "$green-All done, you can take your module from here;$nocolor" && echo "$workdir"/turnip.zip
+		else echo -e "$green-All done, you can take your zip from here;$nocolor" && echo "$workdir"/turnip.zip
 	fi
 }
 
