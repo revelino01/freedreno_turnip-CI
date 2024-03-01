@@ -145,7 +145,7 @@ EOF
 	cp "$workdir"/vulkan.ad07XX.so "$magiskdir"
 
 	echo "Packing files in to adrenotool package ..." $'\n'
-	zip -r "$workdir"/turnip_$mesa_version"_"$commit_short".zip ./*
+	zip -r "$workdir"/turnip_"$mesa_version"_"$commit_short".zip ./*
 
 	cd "$workdir"
 	echo "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit" > description
