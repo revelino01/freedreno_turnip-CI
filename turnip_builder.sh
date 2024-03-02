@@ -159,9 +159,10 @@ EOF
 
 	cd "$workdir"
 	
-	echo -n "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit \n Patches " > description
+	echo "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit" > description
+	echo "Patches" >> description
 	for patch in ${patches[@]}; do
-		echo -n "\n - $patch" >> description
+		echo "- $patch" >> description
 	done
 	echo "Turnip Driver - $mesa_version - $commit_short" > release
 	echo "$mesa_version"_"$commit_short" > tag
