@@ -159,7 +159,7 @@ EOF
 
 	cd "$workdir"
 	
-	echo "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit \n Patches" > description
+	echo -n "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit \n Patches " > description
 	for patch in ${patches[@]}; do
 		echo -n "\n - $patch" >> description
 	done
