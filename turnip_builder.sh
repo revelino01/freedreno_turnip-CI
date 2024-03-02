@@ -11,11 +11,11 @@ sdkver="31"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 
 #array of string => commit/branch;patch args
-patches=(
-	'merge_requests/27912;' #8gen3 fix
-)
-#old 8gen3 fix
-#patches=('commit/ebde7d5e870d7d0d0386d553cf36854697e17824;--reverse')
+#inverted color fix for some game on a7xx, 8gen3 fix
+patches=( "commit/9de628b65ca36b920dc6181251b33c436cad1b68;--reverse" "merge_requests/27912;")
+#patches=()
+#old 
+#patches=('commit/9de628b65ca36b920dc6181251b33c436cad1b68;--reverse')
 commit=""
 commit_short=""
 mesa_version=""
@@ -80,16 +80,16 @@ prepare_workdir(){
 
 	cd mesa
 
-	for patch in $patches;
-		do
-			echo "Applying patch $patch"
-			patch_source="$(echo $patch | cut -d ";" -f 1 | xargs)"
-			patch_file="${patch_source#*\/}"
-			patch_args=$(echo $patch | cut -d ";" -f 2 | xargs)
-			curl https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch --output "$patch_file".patch  &> /dev/null
-		
-			git apply $patch_args "$patch_file".patch
-		done
+	for patch in ${patches[@]}; do
+		echo "Applying patch $patch"
+		patch_source="$(echo $patch | cut -d ";" -f 1 | xargs)"
+		patch_file="${patch_source#*\/}"
+		patch_args=$(echo $patch | cut -d ";" -f 2 | xargs)
+		curl https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch --output "$patch_file".patch  &> /dev/null
+	
+		git apply $patch_args "$patch_file".patch
+	done
+
 
 
 	commit_short=$(git rev-parse --short HEAD)
