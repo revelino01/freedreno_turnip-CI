@@ -11,11 +11,11 @@ sdkver="31"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 
 #array of string => commit/branch;patch args
-#inverted color fix for some game on a7xx, 8gen3 fix
-patches=( "commit/9de628b65ca36b920dc6181251b33c436cad1b68;--reverse" "merge_requests/27912;")
+patches=( 
+	"visual-issues-in-some-games-a7xx;commit/9de628b65ca36b920dc6181251b33c436cad1b68;--reverse"
+	"8gen3-fix;merge_requests/27912;"
+)
 #patches=()
-#old 
-#patches=('commit/9de628b65ca36b920dc6181251b33c436cad1b68;--reverse')
 commit=""
 commit_short=""
 mesa_version=""
@@ -30,7 +30,6 @@ run_all(){
 	build_lib_for_android
 	port_lib_for_magisk
 }
-
 
 check_deps(){
 	sudo apt remove meson
@@ -56,8 +55,6 @@ check_deps(){
 	pip install mako &> /dev/null
 }
 
-
-
 prepare_workdir(){
 	echo "Creating and entering to work directory ..." $'\n'
 	mkdir -p "$workdir" && cd "$_"
@@ -82,15 +79,13 @@ prepare_workdir(){
 
 	for patch in ${patches[@]}; do
 		echo "Applying patch $patch"
-		patch_source="$(echo $patch | cut -d ";" -f 1 | xargs)"
+		patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
 		patch_file="${patch_source#*\/}"
-		patch_args=$(echo $patch | cut -d ";" -f 2 | xargs)
+		patch_args=$(echo $patch | cut -d ";" -f 3 | xargs)
 		curl https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch --output "$patch_file".patch  &> /dev/null
 	
 		git apply $patch_args "$patch_file".patch
 	done
-
-
 
 	commit_short=$(git rev-parse --short HEAD)
 	commit=$(git rev-parse HEAD)
@@ -101,8 +96,6 @@ prepare_workdir(){
 	patch=$(awk -F'VK_HEADER_VERSION |\n#define' '{print $2}' <<< $(cat include/vulkan/vulkan_core.h) | xargs)
 	vulkan_version="$major.$minor.$patch"
 }
-
-
 
 build_lib_for_android(){
 	echo "Creating meson cross file ..." $'\n'
@@ -130,8 +123,6 @@ EOF
 	echo "Compiling build files ..." $'\n'
 	ninja -C build-android-aarch64 &> "$workdir"/ninja_log
 }
-
-
 
 port_lib_for_magisk(){
 	echo "Using patchelf to match soname ..."  $'\n'
@@ -167,7 +158,12 @@ EOF
 	zip -r "$workdir"/turnip_"$mesa_version"_"$commit_short".zip ./*
 
 	cd "$workdir"
+	
 	echo "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit" > description
+	echo "Patches" >> description
+	for patch in ${patches[@]}; do
+		echo "- $patch" >> description
+	done
 	echo "Turnip Driver - $mesa_version - $commit_short" > release
 	echo "$mesa_version"_"$commit_short" > tag
 
