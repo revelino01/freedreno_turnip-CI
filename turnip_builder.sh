@@ -77,12 +77,18 @@ prepare_workdir(){
 
 	cd mesa
 
+	if [ -z ${experimental_patches+x} ]; then
+		echo "No experimental patches found"; 
+	else 
+		patches=("${experimental_patches[@]}" "${patches[@]}")
+	fi
+
 	for patch in ${patches[@]}; do
 		echo "Applying patch $patch"
 		patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
 		patch_file="${patch_source#*\/}"
 		patch_args=$(echo $patch | cut -d ";" -f 3 | xargs)
-		curl https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch --output "$patch_file".patch  &> /dev/null
+		curl https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch --retry 5 --output "$patch_file".patch  &> /dev/null
 	
 		git apply $patch_args "$patch_file".patch
 	done
@@ -137,11 +143,13 @@ port_lib_for_magisk(){
 
 	mkdir -p "$magiskdir" && cd "$_"
 
+	date=$(date +'%b %d, %Y')
+
 	cat <<EOF >"meta.json"
 {
   "schemaVersion": 1,
-  "name": "Turnip Driver - $commit_short",
-  "description": "$mesa_version - $commit",
+  "name": "Turnip - $date - $commit_short",
+  "description": "$mesa_version - $commit_short",
   "author": "mesa",
   "packageVersion": "1",
   "vendor": "Mesa",
@@ -164,7 +172,7 @@ EOF
 	for patch in ${patches[@]}; do
 		echo "- $patch" >> description
 	done
-	echo "Turnip Driver - $mesa_version - $commit_short" > release
+	echo "Turnip - $mesa_version - $date" > release
 	echo "$mesa_version"_"$commit_short" > tag
 
 	if ! [ -a "$workdir"/turnip_"$mesa_version"_"$commit_short".zip ];
