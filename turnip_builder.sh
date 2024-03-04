@@ -5,7 +5,7 @@ nocolor='\033[0m'
 
 deps="meson ninja patchelf unzip curl pip flex bison zip git"
 workdir="$(pwd)/turnip_workdir"
-magiskdir="$workdir/turnip_module"
+packagedir="$workdir/turnip_module"
 ndkver="android-ndk-r26c"
 sdkver="31"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
@@ -28,7 +28,7 @@ run_all(){
 	check_deps
 	prepare_workdir
 	build_lib_for_android
-	port_lib_for_magisk
+	port_lib_for_adrenotool
 }
 
 check_deps(){
@@ -59,13 +59,19 @@ prepare_workdir(){
 	echo "Creating and entering to work directory ..." $'\n'
 	mkdir -p "$workdir" && cd "$_"
 
-	if [ ! -n "$(ls -d android-ndk*)" ]; then
-		echo "Downloading android-ndk from google server (~640 MB) ..." $'\n'
-		curl https://dl.google.com/android/repository/"$ndkver"-linux.zip --output "$ndkver"-linux.zip &> /dev/null
-		###
-		echo "Exracting android-ndk to a folder ..." $'\n'
-		unzip "$ndkver"-linux.zip  &> /dev/null
+	if [ -z "${ANDROID_NDK_LATEST_HOME}" ]; then
+		if [ ! -n "$(ls -d android-ndk*)" ]; then
+			echo "Downloading android-ndk from google server (~640 MB) ..." $'\n'
+			curl https://dl.google.com/android/repository/"$ndkver"-linux.zip --output "$ndkver"-linux.zip &> /dev/null
+			###
+			echo "Exracting android-ndk to a folder ..." $'\n'
+			unzip "$ndkver"-linux.zip  &> /dev/null
+		fi
+	else	
+		echo "Using android ndk from github image"
 	fi
+
+
 
 	if [ -d mesa ]; then
 		echo "Removing old mesa ..." $'\n'
@@ -105,7 +111,11 @@ prepare_workdir(){
 
 build_lib_for_android(){
 	echo "Creating meson cross file ..." $'\n'
-	ndk="$workdir/$ndkver/toolchains/llvm/prebuilt/linux-x86_64/bin"
+	if [ -z "${ANDROID_NDK_LATEST_HOME}" ]; then
+		ndk="$workdir/$ndkver/toolchains/llvm/prebuilt/linux-x86_64/bin"
+	else	
+		ndk="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+	fi
 
 	cat <<EOF >"android-aarch64"
 [binaries]
@@ -130,7 +140,7 @@ EOF
 	ninja -C build-android-aarch64 &> "$workdir"/ninja_log
 }
 
-port_lib_for_magisk(){
+port_lib_for_adrenotool(){
 	echo "Using patchelf to match soname ..."  $'\n'
 	cp "$workdir"/mesa/build-android-aarch64/src/freedreno/vulkan/libvulkan_freedreno.so "$workdir"
 	cd "$workdir"
@@ -141,7 +151,7 @@ port_lib_for_magisk(){
 		echo -e "$red Build failed! $nocolor" && exit 1
 	fi
 
-	mkdir -p "$magiskdir" && cd "$_"
+	mkdir -p "$packagedir" && cd "$_"
 
 	date=$(date +'%b %d, %Y')
 
@@ -160,7 +170,7 @@ port_lib_for_magisk(){
 EOF
 
 	echo "Copy necessary files from work directory ..." $'\n'
-	cp "$workdir"/vulkan.ad07XX.so "$magiskdir"
+	cp "$workdir"/vulkan.ad07XX.so "$packagedir"
 
 	echo "Packing files in to adrenotool package ..." $'\n'
 	zip -r "$workdir"/turnip_"$mesa_version"_"$commit_short".zip ./*
