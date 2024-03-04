@@ -185,13 +185,13 @@ EOF
 	cp "$workdir"/vulkan.ad07XX.so "$packagedir"
 
 	echo "Packing files in to adrenotool package ..." $'\n'
-	zip -r "$workdir"/turnip_"$date"_"$commit_short$patched".zip ./*
+	zip -r "$workdir"/turnip_"$(date +'%b-%d-%Y')"_"$commit_short$patched".zip ./*
 
 	cd "$workdir"
 	
 	echo "Turnip - $mesa_version - $date" > release
 	echo "$mesa_version"_"$commit_short" > tag
-	echo turnip_"$(date +'%b\ %d,\ %Y')"_"$commit_short" > filename
+	echo turnip_"$(date +'%b-%d-%Y')"_"$commit_short" > filename
 	echo "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit_short" > description
 	echo "Patches" >> description
 	
