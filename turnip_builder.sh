@@ -29,6 +29,13 @@ run_all(){
 	prepare_workdir
 	build_lib_for_android
 	port_lib_for_adrenotool
+
+	if (( ${#patches[@]} )); then
+		prepare_workdir "patched"
+		build_lib_for_android
+		port_lib_for_adrenotool "patched"
+	fi
+
 }
 
 check_deps(){
@@ -71,42 +78,42 @@ prepare_workdir(){
 		echo "Using android ndk from github image"
 	fi
 
+	if [ -z "$1" ]; then
+		if [ -d mesa ]; then
+			echo "Removing old mesa ..." $'\n'
+			rm -rf mesa
+		fi
+		
+		echo "Cloning mesa ..." $'\n'
+		git clone --depth=1 "$mesasrc"  &> /dev/null
 
+		cd mesa
+		commit_short=$(git rev-parse --short HEAD)
+		commit=$(git rev-parse HEAD)
+		mesa_version=$(cat VERSION | xargs)
+		version=$(awk -F'COMPLETE VK_MAKE_API_VERSION(|)' '{print $2}' <<< $(cat include/vulkan/vulkan_core.h) | xargs)
+		major=$(echo $version | cut -d "," -f 2 | xargs)
+		minor=$(echo $version | cut -d "," -f 3 | xargs)
+		patch=$(awk -F'VK_HEADER_VERSION |\n#define' '{print $2}' <<< $(cat include/vulkan/vulkan_core.h) | xargs)
+		vulkan_version="$major.$minor.$patch"
+	else		
+		if [ -z ${experimental_patches+x} ]; then
+			echo "No experimental patches found"; 
+		else 
+			patches=("${experimental_patches[@]}" "${patches[@]}")
+		fi
 
-	if [ -d mesa ]; then
-		echo "Removing old mesa ..." $'\n'
-		rm -rf mesa
+		cd mesa
+		for patch in ${patches[@]}; do
+			echo "Applying patch $patch"
+			patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
+			patch_file="${patch_source#*\/}"
+			patch_args=$(echo $patch | cut -d ";" -f 3 | xargs)
+			curl --output "$patch_file".patch -k --retry 5  https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch
+		
+			git apply $patch_args "$patch_file".patch
+		done
 	fi
-	
-	echo "Cloning mesa ..." $'\n'
-	git clone --depth=1 "$mesasrc"  &> /dev/null
-
-	cd mesa
-
-	if [ -z ${experimental_patches+x} ]; then
-		echo "No experimental patches found"; 
-	else 
-		patches=("${experimental_patches[@]}" "${patches[@]}")
-	fi
-
-	for patch in ${patches[@]}; do
-		echo "Applying patch $patch"
-		patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
-		patch_file="${patch_source#*\/}"
-		patch_args=$(echo $patch | cut -d ";" -f 3 | xargs)
-		curl https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch --retry 5 --output "$patch_file".patch  &> /dev/null
-	
-		git apply $patch_args "$patch_file".patch
-	done
-
-	commit_short=$(git rev-parse --short HEAD)
-	commit=$(git rev-parse HEAD)
-	mesa_version=$(cat VERSION | xargs)
-	version=$(awk -F'COMPLETE VK_MAKE_API_VERSION(|)' '{print $2}' <<< $(cat include/vulkan/vulkan_core.h) | xargs)
-	major=$(echo $version | cut -d "," -f 2 | xargs)
-	minor=$(echo $version | cut -d "," -f 3 | xargs)
-	patch=$(awk -F'VK_HEADER_VERSION |\n#define' '{print $2}' <<< $(cat include/vulkan/vulkan_core.h) | xargs)
-	vulkan_version="$major.$minor.$patch"
 }
 
 build_lib_for_android(){
@@ -154,16 +161,21 @@ port_lib_for_adrenotool(){
 	mkdir -p "$packagedir" && cd "$_"
 
 	date=$(date +'%b %d, %Y')
+	patched=""
+
+	if [ ! -z "$1" ]; then
+		patched="_patched"
+	fi
 
 	cat <<EOF >"meta.json"
 {
   "schemaVersion": 1,
-  "name": "Turnip - $date - $commit_short",
-  "description": "$mesa_version - $commit_short",
+  "name": "Turnip - $date - $commit_short$patched",
+  "description": "Compiled from Mesa, Commit $commit_short$patched",
   "author": "mesa",
   "packageVersion": "1",
   "vendor": "Mesa",
-  "driverVersion": "Vulkan $vulkan_version",
+  "driverVersion": "$mesa_version/vk$vulkan_version",
   "minApi": 27,
   "libraryName": "vulkan.ad07XX.so"
 }
@@ -173,21 +185,29 @@ EOF
 	cp "$workdir"/vulkan.ad07XX.so "$packagedir"
 
 	echo "Packing files in to adrenotool package ..." $'\n'
-	zip -r "$workdir"/turnip_"$mesa_version"_"$commit_short".zip ./*
+	zip -r "$workdir"/turnip_"$date"_"$commit_short$patched".zip ./*
 
 	cd "$workdir"
 	
-	echo "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit" > description
-	echo "Patches" >> description
-	for patch in ${patches[@]}; do
-		echo "- $patch" >> description
-	done
 	echo "Turnip - $mesa_version - $date" > release
 	echo "$mesa_version"_"$commit_short" > tag
+	echo "turnip_"$date"_"$commit_short".zip" >> filename
+	echo "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit" > description
+	echo "Patches" >> description
+	
+	if (( ${#patches[@]} )); then
+		for patch in ${patches[@]}; do
+			echo "- $patch" >> description
+		done
+		echo "true" > patched
+	else
+		echo "No patch" >> description
+		echo "false" > patched
+	fi
 
-	if ! [ -a "$workdir"/turnip_"$mesa_version"_"$commit_short".zip ];
+	if ! [ -a "$workdir"/turnip_"$date"_"$commit_short".zip ];
 		then echo -e "$red-Packing failed!$nocolor" && exit 1
-		else echo -e "$green-All done, you can take your zip from here;$nocolor" && echo "$workdir"/turnip.zip
+		else echo -e "$green-All done, you can take your zip from this folder;$nocolor" && echo "$workdir"/
 	fi
 }
 
