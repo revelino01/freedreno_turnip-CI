@@ -181,17 +181,18 @@ port_lib_for_adrenotool(){
 }
 EOF
 
+	filename=turnip_"$(date +'%b-%d-%Y')"_"$commit_short"
 	echo "Copy necessary files from work directory ..." $'\n'
 	cp "$workdir"/vulkan.ad07XX.so "$packagedir"
 
 	echo "Packing files in to adrenotool package ..." $'\n'
-	zip -r "$workdir"/turnip_"$(date +'%b-%d-%Y')"_"$commit_short$patched".zip ./*
+	zip -r "$workdir"/"$filename$patched".zip ./*
 
 	cd "$workdir"
 	
 	echo "Turnip - $mesa_version - $date" > release
 	echo "$mesa_version"_"$commit_short" > tag
-	echo turnip_"$(date +'%b-%d-%Y')"_"$commit_short" > filename
+	echo  $filename > filename
 	echo "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit_short" > description
 	echo "Patches" >> description
 	
@@ -205,7 +206,7 @@ EOF
 		echo "false" > patched
 	fi
 
-	if ! [ -a "$workdir"/turnip_"$date"_"$commit_short".zip ];
+	if ! [ -a "$workdir"/"$filename".zip ];
 		then echo -e "$red-Packing failed!$nocolor" && exit 1
 		else echo -e "$green-All done, you can take your zip from this folder;$nocolor" && echo "$workdir"/
 	fi
