@@ -191,7 +191,7 @@ EOF
 	
 	echo "Turnip - $mesa_version - $date" > release
 	echo "$mesa_version"_"$commit_short" > tag
-	echo "turnip_$date_$commit_short" > filename
+	echo turnip_"$date"_"$commit_short" > filename
 	echo "https://gitlab.freedesktop.org/mesa/mesa/-/commit/$commit_short" > description
 	echo "Patches" >> description
 	
