@@ -29,6 +29,7 @@ jobs:
           turnip_workdir/mesa/build-android-aarch64/meson-logs/meson-log.txt
     
     - id: versions
+      name: "Get release info"
       run: |
         echo "name=$(cat turnip_workdir/release)" >> "$GITHUB_OUTPUT"
         echo "tag=$(cat turnip_workdir/tag)" >> "$GITHUB_OUTPUT"
