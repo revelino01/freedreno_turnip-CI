@@ -12,8 +12,11 @@ mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 
 #array of string => commit/branch;patch args
 patches=( 
+	"Fix-dynamic-state-not-always-being-emitted;merge_requests/27961;"
+	"visual-issues;merge_requests/27969;"
 	"visual-issues-in-some-games-a7xx;commit/9de628b65ca36b920dc6181251b33c436cad1b68;--reverse"
 	"8gen3-fix;merge_requests/27912;"
+	"mem-leaks-tu-shader;merge_requests/27847;"
 )
 #patches=()
 commit=""
