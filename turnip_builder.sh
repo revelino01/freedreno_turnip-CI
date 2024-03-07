@@ -199,7 +199,7 @@ EOF
 	echo "## Upstreams / Patches" >> description
 	
 	if (( ${#patches[@]} )); then
-		echo "Theses have not been merged by Mesa officially yet and may introduce bugs or" >> description
+		echo "These have not been merged by Mesa officially yet and may introduce bugs or" >> description
 		echo "we revert stuff that breaks games but still got merged in (see --reverse)" >> description
 		for patch in ${patches[@]}; do
 			patch_name="$(echo $patch | cut -d ";" -f 1 | xargs)"
