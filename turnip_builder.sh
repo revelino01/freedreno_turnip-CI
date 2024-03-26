@@ -15,7 +15,6 @@ patches=(
 	"Mem-leaks-tu-shader;merge_requests/27847;"
 	"Fix-undefined-value-gl_ClipDistance;merge_requests/28109;"
 	"Visual-fixes-in-some-games;merge_requests/28148;"
-	"Add-PC_TESS_PARAM_SIZE-PC_TESS_FACTOR_SIZE;merge_requests/28210;"
 # 	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse"
 )
 experimental_patches=(
