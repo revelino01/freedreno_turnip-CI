@@ -13,13 +13,11 @@ mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 #array of string => commit/branch;patch args
 patches=(
 	"Fix-undefined-value-gl_ClipDistance;merge_requests/28109;"
-	"Visual-fixes-in-some-games;merge_requests/28148;"
 	"Handle-non-overlapping-WaW-hazard-with-buffer;merge_requests/28469;"
 # 	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse"
 )
 experimental_patches=(
-	"KHR_8bit_storage-support-fix-games-a7xx-break-some-a6xx;merge_requests/28254;"
-	"Implement-CCHE-invalidation;merge_requests/28445;"
+	"KHR_8bit_storage-support;merge_requests/28254;"
 # 	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse"
 )
 commit=""
