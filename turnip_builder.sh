@@ -12,7 +12,6 @@ mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 
 #array of string => commit/branch;patch args
 patches=(
-	"Fix-undefined-value-gl_ClipDistance;merge_requests/28109;"
 	"Handle-non-overlapping-WaW-hazard-with-buffer;merge_requests/28469;"
 # 	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse"
 )
