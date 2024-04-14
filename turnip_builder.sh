@@ -12,12 +12,18 @@ mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 
 #array of string => commit/branch;patch args
 patches=(
+# 	"Occlusion-fix;merge_requests/28691;" # Could fix corruption on a6xx due to the merged of the next reverted mr
+	"Fix-a740;merge_requests/28610;--reverse" # Revert of this mr because it breaks a740
 	"Handle-non-overlapping-WaW-hazard-with-buffer;merge_requests/28469;"
-# 	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse"
+	"Disable-stencil-test;merge_requests/28556;"
+	"A7xx-no-set-feedback-loops;merge_requests/28597;"
 )
 experimental_patches=(
-	"KHR_8bit_storage-support;merge_requests/28254;"
-# 	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse"
+	"More-a7xx-regs;merge_requests/28713;"
+	"KHR_8bit_storage-support-fix-games-a7xx-break-some-a6xx;merge_requests/28254;"
+#	"FSDT-support;merge_requests/28485;"
+#	"Ir3-Use-divergence-analysis;merge_requests/28573;--reverse"
+# 	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse" # Force sysmem on a7xx
 )
 commit=""
 commit_short=""
