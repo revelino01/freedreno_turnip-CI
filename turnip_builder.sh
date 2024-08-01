@@ -12,8 +12,8 @@ mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 
 #array of string => commit/branch;patch args
 base_patches=(
-	"force-sysmem-a6xx-a7xx;../../patches/force_sysmem_no_autotuner.patch;"
 	"test-patch-that-fails;merge_requests/28148;--reverse"
+	"force-sysmem-a6xx-a7xx;../../patches/force_sysmem_no_autotuner.patch;"
 )
 experimental_patches=(
 	# "test-patch-that-fails;merge_requests/28148;--reverse"
@@ -121,6 +121,7 @@ apply_patches() {
 	for patch in "${arr[@]}"; do
 		echo "Applying patch $patch"
 		patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
+		patch_args=$(echo $patch | cut -d ";" -f 3 | xargs)
 		if [[ $patch_source == *"../.."* ]]; then
 			if git apply $patch_args "$patch_source"; then
 				echo "Patch applied successfully"
@@ -130,7 +131,6 @@ apply_patches() {
 			fi
 		else 
 			patch_file="${patch_source#*\/}"
-			patch_args=$(echo $patch | cut -d ";" -f 3 | xargs)
 			curl --output "../$patch_file".patch -k --retry-delay 30 --retry 5 -f --retry-all-errors https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch
 			sleep 1
 
@@ -138,7 +138,7 @@ apply_patches() {
 				echo "Patch applied successfully"
 			else
 				echo "Failed to apply $patch"
-				failed_patches+=("$patch")
+				failed_patches+=("$patch")		
 			fi
 		fi
 	done
