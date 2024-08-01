@@ -11,16 +11,14 @@ sdkver="31"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 
 #array of string => commit/branch;patch args
-patches=(
-# 	"Occlusion-fix;merge_requests/28691;" # Could fix corruption on a6xx due to the merged of the next reverted mr
-	"Fix-a740;merge_requests/28610;--reverse" # Revert of this mr because it breaks a740
+base_patches=(
+	"force-sysmem-a6xx-a7xx;../../patches/force_sysmem_no_autotuner.patch;"
+	"test-patch-that-fails;merge_requests/28148;--reverse"
 )
 experimental_patches=(
-	"More-a7xx-regs;merge_requests/28713;"
-	"KHR_8bit_storage-support-fix-games-a7xx-break-some-a6xx;merge_requests/28254;"
-#	"FSDT-support;merge_requests/28485;"
-# 	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse" # Force sysmem on a7xx
+	# "test-patch-that-fails;merge_requests/28148;--reverse"
 )
+failed_patches=()
 commit=""
 commit_short=""
 mesa_version=""
@@ -31,26 +29,26 @@ clear
 # you can insert your own function and make a pull request.
 run_all(){
 	check_deps
-	prepare_workdir
-	build_lib_for_android
-	port_lib_for_adrenotool
+	prep
 
-	if (( ${#patches[@]} )); then
-		prepare_workdir "patched"
-		build_lib_for_android
-		port_lib_for_adrenotool "patched"
+	if (( ${#base_patches[@]} )); then
+		prep "patched"
 	fi
-
+ 
 	if (( ${#experimental_patches[@]} )); then
-		prepare_workdir "experimental"
-		build_lib_for_android
-		port_lib_for_adrenotool "experimental"
+		prep "experimental"
 	fi
+}
+
+prep () {
+	prepare_workdir "$1"
+	build_lib_for_android
+	port_lib_for_adrenotool "$1"
 }
 
 check_deps(){
 	sudo apt remove meson
-	pip install meson
+	pip install meson PyYAML
 
 	echo "Checking system for required Dependencies ..."
 	for deps_chk in $deps;
@@ -95,7 +93,7 @@ prepare_workdir(){
 		fi
 		
 		echo "Cloning mesa ..." $'\n'
-		git clone --depth=1 "$mesasrc"  &> /dev/null
+		git clone --depth=1 "$mesasrc"
 
 		cd mesa
 		commit_short=$(git rev-parse --short HEAD)
@@ -110,40 +108,54 @@ prepare_workdir(){
 		cd mesa
 
 		if [ $1 == "patched" ]; then 
-			for patch in ${patches[@]}; do
-				echo "Applying patch $patch"
-				patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
-				if [[ $patch_source == *"../.."* ]]; then
-					git apply "$patch_source"
-					sleep 1
-				else 
-					patch_file="${patch_source#*\/}"
-					patch_args=$(echo $patch | cut -d ";" -f 3 | xargs)
-					curl --output "$patch_file".patch -k --retry-delay 30 --retry 5 -f --retry-all-errors https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch
-					sleep 1
-				
-					git apply $patch_args "$patch_file".patch
-				fi
-			done
+			apply_patches ${base_patches[@]}
 		else 
-			for patch in ${experimental_patches[@]}; do
-				echo "Applying patch $patch"
-				patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
-				if [[ $patch_source == *"../.."* ]]; then
-					git apply "$patch_source"
-					sleep 1
-				else 
-					patch_file="${patch_source#*\/}"
-					patch_args=$(echo $patch | cut -d ";" -f 3 | xargs)
-					curl --output "$patch_file".patch -k --retry-delay 30 --retry 5 -f --retry-all-errors https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch
-					sleep 1
-				
-					git apply $patch_args "$patch_file".patch
-				fi
-			done
+			apply_patches ${experimental_patches[@]}
 		fi
 		
 	fi
+}
+
+apply_patches() {
+	local arr=("$@")
+	for patch in "${arr[@]}"; do
+		echo "Applying patch $patch"
+		patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
+		if [[ $patch_source == *"../.."* ]]; then
+			if git apply $patch_args "$patch_source"; then
+				echo "Patch applied successfully"
+			else
+				echo "Failed to apply $patch"
+				failed_patches+=("$patch")
+			fi
+		else 
+			patch_file="${patch_source#*\/}"
+			patch_args=$(echo $patch | cut -d ";" -f 3 | xargs)
+			curl --output "../$patch_file".patch -k --retry-delay 30 --retry 5 -f --retry-all-errors https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch
+			sleep 1
+
+			if git apply $patch_args "../$patch_file".patch ; then
+				echo "Patch applied successfully"
+			else
+				echo "Failed to apply $patch"
+				failed_patches+=("$patch")
+			fi
+		fi
+	done
+}
+
+patch_to_description() {
+	local arr=("$@")
+	for patch in "${arr[@]}"; do
+		patch_name="$(echo $patch | cut -d ";" -f 1 | xargs)"
+		patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
+		patch_args="$(echo $patch | cut -d ";" -f 3 | xargs)"
+		if [[ $patch_source == *"../.."* ]]; then
+			echo "- $patch_name, $patch_source, $patch_args" >> description
+		else 
+			echo "- $patch_name, [$patch_source](https://gitlab.freedesktop.org/mesa/mesa/-/$patch_source), $patch_args" >> description
+		fi
+	done
 }
 
 build_lib_for_android(){
@@ -232,16 +244,7 @@ EOF
 			echo "## Upstreams / Patches" >> description
 			echo "These have not been merged by Mesa officially yet and may introduce bugs or" >> description
 			echo "we revert stuff that breaks games but still got merged in (see --reverse)" >> description
-			for patch in ${patches[@]}; do
-				patch_name="$(echo $patch | cut -d ";" -f 1 | xargs)"
-				patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
-				patch_args="$(echo $patch | cut -d ";" -f 3 | xargs)"
-				if [[ $patch_source == *"../.."* ]]; then
-					echo "- $patch_name, $patch_source, $patch_args" >> description
-				else 
-					echo "- $patch_name, [$patch_source](https://gitlab.freedesktop.org/mesa/mesa/-/$patch_source), $patch_args" >> description
-				fi
-			done
+			patch_to_description ${base_patches[@]}
 			echo "true" > patched
 			echo "" >> description
 			echo "_Upstreams / Patches are only applied to the patched version (\_patched.zip)_" >> description
@@ -249,20 +252,17 @@ EOF
 		else 
 			echo "### Upstreams / Patches (Experimental)" >> description
 			echo "Include previously listed patches + experimental ones" >> description
-			for patch in ${experimental_patches[@]}; do
-				patch_name="$(echo $patch | cut -d ";" -f 1 | xargs)"
-				patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
-				patch_args="$(echo $patch | cut -d ";" -f 3 | xargs)"
-				if [[ $patch_source == *"../.."* ]]; then
-					echo "- $patch_name, $patch_source, $patch_args" >> description
-				else 
-					echo "- $patch_name, [$patch_source](https://gitlab.freedesktop.org/mesa/mesa/-/$patch_source), $patch_args" >> description
-				fi
-			done
+			patch_to_description ${experimental_patches[@]}
 			echo "true" > experimental
 			echo "" >> description
 			echo "_Experimental patches are only applied to the experimental version (\_experimental.zip)_" >> description
 		fi
+	fi
+
+	if (( ${#failed_patches[@]} )); then
+		echo "" >> description
+		echo "#### Patches that failed to apply" >> description
+		patch_to_description ${failed_patches[@]}
 	fi
 	
 	if ! [ -a "$workdir"/"$filename".zip ];
