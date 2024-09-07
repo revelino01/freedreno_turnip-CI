@@ -6,17 +6,17 @@ nocolor='\033[0m'
 deps="meson ninja patchelf unzip curl pip flex bison zip git"
 workdir="$(pwd)/turnip_workdir"
 packagedir="$workdir/turnip_module"
-ndkver="android-ndk-r26c"
-sdkver="31"
+ndkver="android-ndk-r27"
+sdkver="33"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 
 #array of string => commit/branch;patch args
 base_patches=(
-	"test-patch-that-fails;merge_requests/28148;--reverse"
-	"force-sysmem-a6xx-a7xx;../../patches/force_sysmem_no_autotuner.patch;"
+	"Quest3;../../patches/quest3.patch;"
+	'disable-VK_KHR_workgroup_memory_explicit_layout;../../patches/disable_KHR_workgroup_memory_explicit_layout.patch;--reverse'
 )
 experimental_patches=(
-	# "test-patch-that-fails;merge_requests/28148;--reverse"
+	"force_gmem_no_autotuner;../../patches/force_gmem_no_autotuner.patch;"
 )
 failed_patches=()
 commit=""
@@ -128,6 +128,7 @@ apply_patches() {
 			else
 				echo "Failed to apply $patch"
 				failed_patches+=("$patch")
+
 			fi
 		else 
 			patch_file="${patch_source#*\/}"
@@ -138,7 +139,8 @@ apply_patches() {
 				echo "Patch applied successfully"
 			else
 				echo "Failed to apply $patch"
-				failed_patches+=("$patch")		
+				failed_patches+=("$patch")
+				
 			fi
 		fi
 	done
