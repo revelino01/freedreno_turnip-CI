@@ -110,6 +110,7 @@ prepare_workdir(){
 
 		cd mesa
 		if [ -n "$tagver" ]; then
+			git fetch --tags
     		git checkout "$tagver"
 		fi
 
