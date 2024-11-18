@@ -9,7 +9,7 @@ packagedir="$workdir/turnip_module"
 ndkver="android-ndk-r27c"
 sdkver="35"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
-tagver=""
+tagver="mesa-24.1.6"
 
 #array of string => commit/branch;patch args
 #these are some changes that are not merge, the --reverse is reversing merged changes
