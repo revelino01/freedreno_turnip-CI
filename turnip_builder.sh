@@ -29,7 +29,6 @@ experimental_patches=(
 	"tweak-attachment-validation;merge_requests/28135;--reverse"
 	"Fix-undefined-value-gl_ClipDistance;merge_requests/28109;"
  	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse"
- 	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse"
 )
 failed_patches=()
 commit=""
