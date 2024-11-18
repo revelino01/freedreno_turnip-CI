@@ -110,7 +110,7 @@ prepare_workdir(){
 
 		cd mesa
 		if [ -n "$tagver" ]; then
-    		git checkout tags/"$tagver"
+    		git checkout "$tagver"
 		fi
 
 		commit_short=$(git rev-parse --short HEAD)
