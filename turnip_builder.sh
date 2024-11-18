@@ -13,22 +13,22 @@ mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 #array of string => commit/branch;patch args
 #these are some changes that are not merge, the --reverse is reversing merged changes
 base_patches=(
-	"Quest3;../../patches/quest3.patch;"
+	# "Quest3;../../patches/quest3.patch;"
 	'disable_VK_KHR_workgroup_memory_explicit_layout;../../patches/disable_KHR_workgroup_memory_explicit_layout.patch;'
 )
 experimental_patches=(
 	"force_sysmem_no_autotuner;../../patches/force_sysmem_no_autotuner.patch;"
-    "visual-fix-issues-in-some-games-1;merge_requests/27986;--reverse"
-	"visual-fix-issues-in-some-games-2;commit/9de628b65ca36b920dc6181251b33c436cad1b68;--reverse"
-    "visual-fix-issues-in-some-game-3;merge_requests/28148;--reverse"
-	"8gen3-fix;merge_requests/27912;--reverse"
-	"mem-leaks-tu-shader;merge_requests/27847;--reverse"
-    "add-RMV-Support;commit/a13860e5dfd0cf28ff5292b410d5be44791ca7cc;--reverse"
-	"fix-color-buffer;commit/782fb8966bd59a40b905b17804c493a76fdea7a0;--reverse"
-    "Fix-undefined-value-gl_ClipDistance;merge_requests/28109;--reverse"
-	"tweak-attachment-validation;merge_requests/28135;--reverse"
-	"Fix-undefined-value-gl_ClipDistance;merge_requests/28109;"
- 	"disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse"
+    # "visual-fix-issues-in-some-games-1;merge_requests/27986;--reverse"
+	# "visual-fix-issues-in-some-games-2;commit/9de628b65ca36b920dc6181251b33c436cad1b68;--reverse"
+    # "visual-fix-issues-in-some-game-3;merge_requests/28148;--reverse"
+	# "8gen3-fix;merge_requests/27912;--reverse"
+	# "mem-leaks-tu-shader;merge_requests/27847;--reverse"
+    # "add-RMV-Support;commit/a13860e5dfd0cf28ff5292b410d5be44791ca7cc;--reverse"
+	# "fix-color-buffer;commit/782fb8966bd59a40b905b17804c493a76fdea7a0;--reverse"
+    # "Fix-undefined-value-gl_ClipDistance;merge_requests/28109;--reverse"
+	# "tweak-attachment-validation;merge_requests/28135;--reverse"
+	# "Fix-undefined-value-gl_ClipDistance;merge_requests/28109;"
+ 	# "disable-gmem;commit/1ba6ccc51a4483a6d622c91fc43685150922dcdf;--reverse"
 )
 failed_patches=()
 commit=""
