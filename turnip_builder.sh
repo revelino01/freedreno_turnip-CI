@@ -30,12 +30,12 @@ experimental_patches=(
 	# "Add-PC_TESS_PARAM_SIZE-PC_TESS_FACTOR_SIZE;merge_requests/28210;"
 	# "Dont-fast-clear-z-isNotEq-s;merge_requests/28249;"
     # "KHR_8bit_storage-support-fix-games-a7xx-break-some-a6xx;merge_requests/28254;"
-	"Fix-a740; merge_requests/28610; --reverse"
-	"Handle-non-overlapping-WaW-hazard-with-buffer; merge_requests/28469;"
-	"Disable-stencil-test; merge_requests/28556;"
-	"A7xx-no-set-feedback-loops; merge_requests/28597;"
-	'More-a7xx-regs; merge_requests/28713;'
-	'KHR_8bit_storage-support-fix-games-a7xx-break-some-a6xx; merge_requests/28254;'
+	"Fix-a740;merge_requests/28610; --reverse"
+	"Handle-non-overlapping-WaW-hazard-with-buffer;merge_requests/28469;"
+	"Disable-stencil-test;merge_requests/28556;"
+	"A7xx-no-set-feedback-loops;merge_requests/28597;"
+	'More-a7xx-regs;merge_requests/28713;'
+	'KHR_8bit_storage-support-fix-games-a7xx-break-some-a6xx;merge_requests/28254;'
 )
 failed_patches=()
 commit=""
