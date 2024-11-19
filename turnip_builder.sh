@@ -100,7 +100,7 @@ prepare_workdir(){
 	mkdir -p "$workdir" && cd "$_"
 
 	if [ -z "${ANDROID_NDK_LATEST_HOME}" ]; then
-		if [ ! -n "$(ls -d android-ndk*)" ]; then
+		if [ ! -n "$(ls -d "$ndkver")" ]; then
 			echo "Downloading android-ndk from google server (~640 MB) ..." $'\n'
 			curl https://dl.google.com/android/repository/"$ndkver"-linux.zip --output "$ndkver"-linux.zip &> /dev/null
 			###
