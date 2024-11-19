@@ -14,11 +14,11 @@ tagver="mesa-24.2.7"
 #array of string => commit/branch;patch args
 #these are some changes that are not merge, the --reverse is reversing merged changes
 base_patches=(
-	# "Quest3;../../patches/quest3.patch;"
+	"Quest3;../../patches/quest3.patch;"
 	'disable_VK_KHR_workgroup_memory_explicit_layout;../../patches/disable_KHR_workgroup_memory_explicit_layout.patch;'
+	"force_sysmem_no_autotuner;../../patches/force_sysmem_no_autotuner.patch;"
 )
 experimental_patches=(
-	"force_sysmem_no_autotuner;../../patches/force_sysmem_no_autotuner.patch;"
 	#xforyoux
     "visual-fix-issues-in-some-games-1;merge_requests/27986;--reverse"
 	"visual-fix-issues-in-some-games-2;commit/9de628b65ca36b920dc6181251b33c436cad1b68;--reverse"
