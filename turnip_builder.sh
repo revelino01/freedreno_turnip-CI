@@ -6,7 +6,7 @@ nocolor='\033[0m'
 deps="meson ninja patchelf unzip curl pip flex bison zip git"
 workdir="$(pwd)/turnip_workdir"
 packagedir="$workdir/turnip_module"
-ndkver="android-ndk-r27c"
+ndkver="android-ndk-r27"
 sdkver="33"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 tagver=""
@@ -202,8 +202,8 @@ build_lib_for_android(){
 	cat <<EOF >"android-aarch64"
 [binaries]
 ar = '$ndk/llvm-ar'
-c = ['ccache', '$ndk/aarch64-linux-android$sdkver-clang', '-fno-semantic-interposition', '-O2', '-flto', -march=armv8-a]
-cpp = ['ccache', '$ndk/aarch64-linux-android$sdkver-clang++', '-fno-semantic-interposition', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-static-libstdc++', '-O2', '-flto', -march=armv8-a]
+c = ['ccache', '$ndk/aarch64-linux-android$sdkver-clang', '-fno-semantic-interposition', '-O2', '-flto', '-march=armv8-a']
+cpp = ['ccache', '$ndk/aarch64-linux-android$sdkver-clang++', '-fno-semantic-interposition', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-static-libstdc++', '-O2', '-flto', '-march=armv8-a']
 c_ld = 'lld'
 cpp_ld = 'lld'
 strip = '$ndk/aarch64-linux-android-strip'
