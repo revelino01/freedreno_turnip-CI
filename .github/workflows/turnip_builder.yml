@@ -7,7 +7,7 @@ on:
 
 jobs:
   start_building_turnip:
-    runs-on: wsl-on-usersrevelino
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
 
