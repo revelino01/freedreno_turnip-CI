@@ -156,7 +156,7 @@ apply_patches() {
 		patch_source="$(echo $patch | cut -d ";" -f 2 | xargs)"
 		patch_args=$(echo $patch | cut -d ";" -f 3 | xargs)
 		if [[ $patch_source == *"../.."* ]]; then
-			if git apply --verbose ----whitespace=fix $patch_args "$patch_source"; then
+			if git apply --verbose --whitespace=fix $patch_args "$patch_source"; then
 				echo "Patch applied successfully"
 			else
 				echo "Failed to apply $patch"
@@ -168,7 +168,7 @@ apply_patches() {
 			curl --output "../$patch_file".patch -k --retry-delay 30 --retry 5 -f --retry-all-errors https://gitlab.freedesktop.org/mesa/mesa/-/"$patch_source".patch
 			sleep 1
 
-			if git apply --verbose ----whitespace=fix $patch_args "../$patch_file".patch ; then
+			if git apply --verbose --whitespace=fix $patch_args "../$patch_file".patch ; then
 				echo "Patch applied successfully"
 			else
 				echo "Failed to apply $patch"
