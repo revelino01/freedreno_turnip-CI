@@ -6,10 +6,10 @@ nocolor='\033[0m'
 deps="meson ninja patchelf unzip curl pip flex bison zip git"
 workdir="$(pwd)/turnip_workdir"
 packagedir="$workdir/turnip_module"
-ndkver="android-ndk-r27c"
+ndkver="android-ndk-r29"
 sdkver="33"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
-tagver="mesa-24.2.8"
+tagver=""
 
 #array of string => commit/branch;patch args
 #these are some changes that are not merge, the --reverse is reversing merged changes
