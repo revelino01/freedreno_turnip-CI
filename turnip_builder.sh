@@ -12,8 +12,8 @@ mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 
 #array of string => commit/branch;patch args
 base_patches=(
-	'disable_VK_KHR_workgroup_memory_explicit_layout;../../patches/disable_KHR_workgroup_memory_explicit_layout.patch;'
 	"fix_a725_a730;../../patches/fix_a725_a730.patch;"
+	"disable_VK_KHR_workgroup_memory_explicit_layout;../../patches/disable_KHR_workgroup_memory_explicit_layout.patch;"
 )
 experimental_patches=(
 	"force_sysmem_no_autotuner;../../patches/force_sysmem_no_autotuner.patch;"
