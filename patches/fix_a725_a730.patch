@@ -1,8 +1,8 @@
 diff --git a/src/freedreno/common/freedreno_devices.py b/src/freedreno/common/freedreno_devices.py
-index 3885b36cf4f..cc52a3f5b6d 100644
+index b8321245ae7..0c8f7d8a19a 100644
 --- a/src/freedreno/common/freedreno_devices.py
 +++ b/src/freedreno/common/freedreno_devices.py
-@@ -873,6 +873,7 @@ a7xx_gen1 = A7XXProps(
+@@ -875,6 +875,7 @@ a7xx_gen1 = A7XXProps(
          fs_must_have_non_zero_constlen_quirk = True,
          enable_tp_ubwc_flag_hint = True,
          reading_shading_rate_requires_smask_quirk = True,
