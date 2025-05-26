@@ -6,16 +6,15 @@ nocolor='\033[0m'
 deps="meson ninja patchelf unzip curl pip flex bison zip git"
 workdir="$(pwd)/turnip_workdir"
 packagedir="$workdir/turnip_module"
-ndkver="android-ndk-r27c"
-sdkver="34"
+ndkver="android-ndk-r29"
+sdkver="33"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 tagver=""
 
 #array of string => commit/branch;patch args
 #these are some changes that are not merge, the --reverse is reversing merged changes
 base_patches=(
-	"Quest3;../../patches/quest3.patch;"
-	'disable_VK_KHR_workgroup_memory_explicit_layout;../../patches/disable_KHR_workgroup_memory_explicit_layout.patch;'
+	"disable_VK_KHR_workgroup_memory_explicit_layout;../../patches/disable_KHR_workgroup_memory_explicit_layout.patch;"
 )
 experimental_patches=(
 	"force_sysmem_no_autotuner;../../patches/force_sysmem_no_autotuner.patch;"
@@ -66,9 +65,6 @@ prep () {
 }
 
 check_deps(){
-	sudo apt remove meson
-	pip install meson PyYAML
-
 	echo "Checking system for required Dependencies ..."
 	for deps_chk in $deps;
 		do
@@ -209,7 +205,7 @@ endian = 'little'
 EOF
 
 	echo "Generating build files ..." $'\n'
-	meson build-android-aarch64 --cross-file "$workdir"/mesa/android-aarch64 -Dbuildtype=release -Dplatforms=android -Dplatform-sdk-version=$sdkver -Dandroid-stub=true -Dgallium-drivers= -Dvulkan-drivers=freedreno -Dvulkan-beta=true -Dfreedreno-kmds=kgsl -Db_lto=true &> "$workdir"/meson_log
+	meson setup build-android-aarch64 --cross-file "$workdir"/mesa/android-aarch64 -Dbuildtype=release -Dplatforms=android -Dplatform-sdk-version=$sdkver -Dandroid-stub=true -Dgallium-drivers= -Dvulkan-drivers=freedreno -Dvulkan-beta=true -Dfreedreno-kmds=kgsl -Db_lto=true -Degl=disabled &> "$workdir"/meson_log
 
 	echo "Compiling build files ..." $'\n'
 	ninja -C build-android-aarch64 &> "$workdir"/ninja_log
