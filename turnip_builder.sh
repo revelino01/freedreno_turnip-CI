@@ -174,8 +174,8 @@ build_lib_for_android(){
 	cat <<EOF >"android-aarch64"
 [binaries]
 ar = '$ndk/llvm-ar'
-c = ['ccache', '$ndk/aarch64-linux-android$sdkver-clang', '-O2', '-flto']
-cpp = ['ccache', '$ndk/aarch64-linux-android$sdkver-clang++', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-static-libstdc++', '-O2', '-flto']
+c = ['ccache', '$ndk/aarch64-linux-android$sdkver-clang']
+cpp = ['ccache', '$ndk/aarch64-linux-android$sdkver-clang++', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '--start-no-unused-arguments', '-static-libstdc++', '--end-no-unused-arguments']
 c_ld = 'lld'
 cpp_ld = 'lld'
 strip = '$ndk/aarch64-linux-android-strip'
@@ -197,7 +197,7 @@ EOF
 port_lib_for_adrenotool(){
 	echo "Using patchelf to match soname ..."  $'\n'
 	pwd
-	cp "$workdir/mesa/build-android-aarch64/src/freedreno/vulkan/libvulkan_freedreno.so" "$workdir"
+	cp "$workdir"/mesa/build-android-aarch64/src/freedreno/vulkan/libvulkan_freedreno.so "$workdir"
 	cd "$workdir"
 	patchelf --set-soname vulkan.adreno.so libvulkan_freedreno.so
 	mv libvulkan_freedreno.so vulkan.ad07XX.so
