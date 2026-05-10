@@ -7,17 +7,18 @@ deps="meson ninja patchelf unzip curl pip flex bison zip git"
 workdir="$(pwd)/turnip_workdir"
 packagedir="$workdir/turnip_module"
 ndkver="android-ndk-r29"
-sdkver="33"
+sdkver="35"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
 tagver=""
 
 #array of string => commit/branch;patch args
 #these are some changes that are not merge, the --reverse is reversing merged changes
 base_patches=(
-	"disable_VK_KHR_workgroup_memory_explicit_layout;../../patches/disable_KHR_workgroup_memory_explicit_layout.patch;"
+	"a7xx_gen1_random_stuff;../../patches/a7xx_gen1_random_stuff.patch;"
 )
 experimental_patches=(
 	"force_sysmem_no_autotuner;../../patches/force_sysmem_no_autotuner.patch;"
+	# "disable_VK_KHR_workgroup_memory_explicit_layout;../../patches/disable_KHR_workgroup_memory_explicit_layout.patch;"
 )
 failed_patches=()
 commit=""
