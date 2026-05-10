@@ -9,7 +9,7 @@ packagedir="$workdir/turnip_module"
 ndkver="android-ndk-r29"
 sdkver="35"
 mesasrc="https://gitlab.freedesktop.org/mesa/mesa.git"
-tagver=""
+tagver="${MESA_TAG:-}"
 
 #array of string => commit/branch;patch args
 #these are some changes that are not merge, the --reverse is reversing merged changes
@@ -92,12 +92,15 @@ prepare_workdir(){
 		fi
 		
 		echo "Cloning mesa ..." $'\n'
-		git clone --depth=1 "$mesasrc"
-
-		cd mesa
 		if [ -n "$tagver" ]; then
-			git fetch --tags
-    		git checkout "$tagver"
+			echo "Targeting mesa tag/branch: $tagver"
+			git clone --branch "$tagver" --depth=1 "$mesasrc" mesa
+			cd mesa
+			# Fetch full history for accurate version detection
+			git fetch --unshallow --filter=blob:none
+		else
+			git clone --depth=1 "$mesasrc" mesa
+			cd mesa
 		fi
 
 		commit_short=$(git rev-parse --short HEAD)
